@@ -1,5 +1,4 @@
 import re
-import os.path as osp
 import os
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -20,7 +19,7 @@ def register_benchmark(benchmark):
     if 'tasks' in benchmark:
         for t in benchmark['tasks']:
             if 'desc' not in t:
-                t['desc'] = remove_version_re.sub('', t['env_id'])
+                t['desc'] = remove_version_re.sub('', t.get('env_id', t.get('id')))
     _BENCHMARKS.append(benchmark)
 
 
@@ -59,7 +58,7 @@ register_benchmark({
 register_benchmark({
     'name': 'Atari10M',
     'description': '7 Atari games from Mnih et al. (2013), with pixel observations, 10M timesteps',
-    'tasks': [{'desc': _game, 'env_id': _game + _ATARI_SUFFIX, 'trials': 2, 'num_timesteps': int(10e6)} for _game in _atari7]
+    'tasks': [{'desc': _game, 'env_id': _game + _ATARI_SUFFIX, 'trials': 6, 'num_timesteps': int(10e6)} for _game in _atari7]
 })
 
 register_benchmark({
@@ -84,8 +83,9 @@ _mujocosmall = [
 register_benchmark({
     'name': 'Mujoco1M',
     'description': 'Some small 2D MuJoCo tasks, run for 1M timesteps',
-    'tasks': [{'env_id': _envid, 'trials': 3, 'num_timesteps': int(1e6)} for _envid in _mujocosmall]
+    'tasks': [{'env_id': _envid, 'trials': 6, 'num_timesteps': int(1e6)} for _envid in _mujocosmall]
 })
+
 register_benchmark({
     'name': 'MujocoWalkers',
     'description': 'MuJoCo forward walkers, run for 8M, humanoid 100M',
@@ -95,6 +95,19 @@ register_benchmark({
         {'env_id': "Humanoid-v1", 'trials': 4, 'num_timesteps': 100 * 1000000},
     ]
 })
+
+# Bullet
+_bulletsmall = [
+    'InvertedDoublePendulum', 'InvertedPendulum', 'HalfCheetah', 'Reacher', 'Walker2D', 'Hopper', 'Ant'
+]
+_bulletsmall = [e + 'BulletEnv-v0' for e in _bulletsmall]
+
+register_benchmark({
+    'name': 'Bullet1M',
+    'description': '6 mujoco-like tasks from bullet, 1M steps',
+    'tasks': [{'env_id': e, 'trials': 6, 'num_timesteps': int(1e6)} for e in _bulletsmall]
+})
+
 
 # Roboschool
 
@@ -142,9 +155,10 @@ register_benchmark({
 
 # HER DDPG
 
+_fetch_tasks = ['FetchReach-v1', 'FetchPush-v1', 'FetchSlide-v1']
 register_benchmark({
-    'name': 'HerDdpg',
-    'description': 'Smoke-test only benchmark of HER',
-    'tasks': [{'trials': 1, 'env_id': 'FetchReach-v1'}]
+    'name': 'Fetch1M',
+    'description': 'Fetch* benchmarks for 1M timesteps',
+    'tasks': [{'trials': 6, 'env_id': env_id, 'num_timesteps': int(1e6)} for env_id in _fetch_tasks]
 })
 
